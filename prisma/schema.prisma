@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  TENANT
+  LANDLORD
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RENTED
+}
+
+enum RentalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum PaymentProvider {
+  SSLCOMMERZ
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  phone       String?
+  role        Role
+  status      UserStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  properties      Property[]
+  rentalRequests  RentalRequest[]
+  reviews         Review[]
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  createdAt   DateTime @default(now())
+
+  properties Property[]
+}
+
+model Property {
+  id          String @id @default(cuid())
+
+  title       String
+  description String
+
+  location    String
+
+  price       Float
+
+  bedrooms    Int
+
+  bathrooms   Int
+
+  amenities   String[]
+
+  images      String[]
+
+  status      PropertyStatus @default(AVAILABLE)
+
+  landlordId  String
+  landlord    User @relation(fields: [landlordId], references: [id])
+
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rentals RentalRequest[]
+  reviews Review[]
+}
+
+model RentalRequest {
+  id            String @id @default(cuid())
+
+  tenantId      String
+  tenant        User @relation(fields: [tenantId], references: [id])
+
+  propertyId    String
+  property      Property @relation(fields: [propertyId], references: [id])
+
+  moveInDate    DateTime
+
+  status        RentalStatus @default(PENDING)
+
+  createdAt     DateTime @default(now())
+
+  payment Payment?
+}
+
+model Payment {
+
+  id               String @id @default(cuid())
+
+  rentalRequestId  String @unique
+
+  rentalRequest    RentalRequest @relation(fields: [rentalRequestId], references: [id])
+
+  amount           Float
+
+  transactionId    String?
+
+  provider         PaymentProvider
+
+  status           PaymentStatus @default(PENDING)
+
+  paidAt           DateTime?
+}
+
+model Review {
+
+  id          String @id @default(cuid())
+
+  rating      Int
+
+  comment     String
+
+  tenantId    String
+  tenant      User @relation(fields: [tenantId], references: [id])
+
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
