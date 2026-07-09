@@ -1,31 +1,44 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Request, Response } from "express";
+import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
+import { AuthService } from "./auth.service";
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+const register = catchAsync(async (req: Request, res: Response) => {
+  
+  const result = await AuthService.register(req.body);
 
-  @Post('register')
-  register(@Body() payload: any) {
-    return this.authService.register(payload);
-  }
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "User registered successfully",
+    data: result,
+  });
+});
 
-  @Post('login')
-  login(@Body() payload: any) {
-    return this.authService.login(payload);
-  }
+const login = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.login(req.body);
 
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  getMe(@Req() req: any) {
-    return this.authService.getMe(req.user.id);
-  }
-}
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Login successful",
+    data: result,
+  });
+});
+
+const getMe = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.getMe((req as any).user.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Profile retrieved successfully",
+    data: result,
+  });
+});
+
+export const AuthController = {
+  register,
+  login,
+  getMe,
+};

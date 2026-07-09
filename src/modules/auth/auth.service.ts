@@ -1,11 +1,12 @@
-// import prisma from "../../prisma/prisma";
+
 import { ILoginUser, IRegisterUser } from "./auth.interface";
 import { hashPassword, comparePassword } from "../../utils/bcrypt";
 import { generateToken } from "../../utils/jwt";
-import { Prisma } from "@prisma/client/extension";
+import prisma from "../../../prisma/prisma";
+import { Role } from "@prisma/client";
 
 const register = async (payload: IRegisterUser) => {
-  const isUserExist = await Prisma.user.findUnique({
+  const isUserExist = await prisma.user.findUnique({
     where: {
       email: payload.email,
     },
@@ -17,13 +18,13 @@ const register = async (payload: IRegisterUser) => {
 
   const hashedPassword = await hashPassword(payload.password);
 
-  const user = await Prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       name: payload.name,
       email: payload.email,
       password: hashedPassword,
       phone: payload.phone,
-      role: payload.role,
+      role: payload.role.toUpperCase() as Role,
     },
   });
 

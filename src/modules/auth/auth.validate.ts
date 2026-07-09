@@ -30,10 +30,16 @@ export const registerValidationSchema = z.object({
       .max(15, 'Phone number cannot exceed 15 digits')
       .optional(),
 
-    role: z.nativeEnum(UserRole, {
-      required_error: 'Role is required',
-      invalid_type_error: 'Invalid role',
-    }),
+    // 🛠️ এখানে প্রি-প্রসেস যোগ করা হয়েছে যাতে 'tenant' বা 'Tenant' দিলে সেটা 'TENANT' হয়ে যায়
+    role: z.preprocess(
+      (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+      z.nativeEnum(UserRole, {
+        required_error: 'Role is required',
+        invalid_type_error: 'Invalid role',
+      }).refine((val) => val !== 'ADMIN', {
+        message: 'You are not allowed to register as an ADMIN directly.',
+      })
+    ),
   }),
 });
 
