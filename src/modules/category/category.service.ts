@@ -1,8 +1,6 @@
 import { Category } from "@prisma/client";
 import prisma from "../../../prisma/prisma";
 
-
-
 const createCategory = async (payload: { name: string }): Promise<Category> => {
   const result = await prisma.category.create({
     data: payload,
@@ -10,7 +8,9 @@ const createCategory = async (payload: { name: string }): Promise<Category> => {
   return result;
 };
 
-const getAllCategories = async (filters: { searchTerm?: string }): Promise<Category[]> => {
+// ১. এখানে আমরা কাউন্ট যোগ করেছি
+const getAllCategories = async (filters: { searchTerm?: string }): Promise<any[]> => { 
+  // Note: Return type Promise<Category[]> থেকে Promise<any[]> করা হয়েছে কারণ এতে '_count' অবজেক্টটি যুক্ত হবে
   const { searchTerm } = filters;
 
   const result = await prisma.category.findMany({
@@ -25,6 +25,12 @@ const getAllCategories = async (filters: { searchTerm?: string }): Promise<Categ
     orderBy: {
       createdAt: 'desc',
     },
+    
+    include: {
+      _count: {
+        select: { properties: true } // প্রপার্টির সংখ্যা গুনবে
+      }
+    }
   });
 
   return result;
@@ -34,23 +40,8 @@ const getCategoryById = async (id: string): Promise<Category | null> => {
   const result = await prisma.category.findUnique({
     where: { id },
     include: {
-      properties: true, // ক্যাটাগরির সাথে প্রোপার্টিজ লিংক দেখার জন্য
+      properties: true, // এটি পুরো প্রপার্টির লিস্টসহ নিয়ে আসবে (কাউন্টসহ আলাদা করে চাইলে এখানেও _count দেওয়া যায়)
     },
-  });
-  return result;
-};
-
-const updateCategory = async (id: string, payload: { name: string }): Promise<Category> => {
-  const result = await prisma.category.update({
-    where: { id },
-    data: payload,
-  });
-  return result;
-};
-
-const deleteCategory = async (id: string): Promise<Category> => {
-  const result = await prisma.category.delete({
-    where: { id },
   });
   return result;
 };
@@ -59,6 +50,4 @@ export const CategoryService = {
   createCategory,
   getAllCategories,
   getCategoryById,
-  updateCategory,
-  deleteCategory,
 };

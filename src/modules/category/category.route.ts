@@ -14,22 +14,11 @@ router.get('/:id', CategoryController.getCategoryById);
 // Admin only routes
 router.post(
   '/',
+
    auth('ADMIN'),
  validateRequest(CategoryValidation.createCategoryValidationSchema),
   CategoryController.createCategory
 );
 
-router.put(
-  '/:id',
-  auth('ADMIN'),
-  validateRequest(CategoryValidation.updateCategoryValidationSchema),
-  CategoryController.updateCategory
-);
-
-router.delete(
-  '/:id',
-   auth('ADMIN'),
-  CategoryController.deleteCategory
-);
 
 export const CategoryRoutes = router;

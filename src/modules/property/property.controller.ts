@@ -78,18 +78,6 @@ const deleteProperty = async (req: Request, res: Response, next: NextFunction) =
   }
 };
 
-const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const result = await PropertyService.getAllCategories();
-    res.status(200).json({
-      success: true,
-      message: 'Categories fetched successfully',
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const PropertyController = {
   createProperty,
@@ -97,5 +85,4 @@ export const PropertyController = {
   getPropertyById,
   updateProperty,
   deleteProperty,
-  getAllCategories,
 };

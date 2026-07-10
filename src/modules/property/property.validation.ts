@@ -10,7 +10,7 @@ const createPropertyZodSchema = z.object({
     bathrooms: z.number({ required_error: 'Bathrooms must be an integer' }).int().nonnegative(),
     amenities: z.array(z.string()).min(1, 'At least one amenity is required'),
     images: z.array(z.string()).min(1, 'At least one image is required'),
-    categoryId: z.string({ required_error: 'Category ID is required' }),
+    categoryName: z.string({ required_error: 'Category name is required' }),
   }),
 });
 
@@ -24,7 +24,7 @@ const updatePropertyZodSchema = z.object({
     bathrooms: z.number().int().nonnegative().optional(),
     amenities: z.array(z.string()).optional(),
     images: z.array(z.string()).optional(),
-    categoryId: z.string().optional(),
+    categoryName: z.string({ required_error: "Category name is required" }),
   }),
 });
 

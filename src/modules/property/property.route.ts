@@ -9,7 +9,6 @@ const router = express.Router();
 
 // 1. Public Routes 
 router.get('/properties', PropertyController.getAllProperties);
-router.get('/categories', PropertyController.getAllCategories);
 router.get('/properties/:id', PropertyController.getPropertyById);
 
 

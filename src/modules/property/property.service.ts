@@ -3,16 +3,33 @@ import prisma from '../../../prisma/prisma';
 import { Property, PropertyStatus } from '@prisma/client';
 
 
+const createProperty = async (landlordId: string, payload: any): Promise<Property> => {
+  const { categoryName, ...propertyData } = payload;
 
-// ১. প্রোপার্টি তৈরি করা (Landlord)
-const createProperty = async (landlordId: string, payload: Property): Promise<Property> => {
+ const category = await prisma.category.findFirst({
+    where: {
+      name: {
+        equals: categoryName.trim(), 
+        mode: 'insensitive',          
+      },
+    },
+  });
+
+  // ❌ ক্যাটাগরি না পাওয়া গেলে এরর থ্রো করা
+  if (!category) {
+    throw new Error(`Category '${categoryName}' not found! Please ensure the category exists.`);
+  }
+
+  // 📝 ক্যাটাগরি আইডিসহ প্রোপার্টি তৈরি করা
   const result = await prisma.property.create({
     data: {
-      ...payload,
+      ...propertyData,
       landlordId,
+      categoryId: category.id,
     },
     include: { category: true },
   });
+  
   return result;
 };
 
@@ -61,20 +78,53 @@ const getAllProperties = async (filters: IPropertyFilterRequest): Promise<Proper
 const getPropertyById = async (id: string): Promise<Property | null> => {
   return await prisma.property.findUnique({
     where: { id },
-    include: { category: true, landlord: { select: { name: true, email: true, phone: true } }, reviews: true },
+    include: { 
+      category: true, 
+      landlord: { select: { name: true, email: true, phone: true } }, 
+      reviews: true 
+    },
   });
 };
+
+
 
 // ৪. প্রোপার্টি আপডেট করা (Landlord)
 const updateProperty = async (id: string, landlordId: string, payload: Partial<Property>): Promise<Property> => {
   // চেক করা হচ্ছে প্রোপার্টিটি এই ল্যান্ডলর্ডের কিনা
-  const isOwner = await prisma.property.findFirst({ where: { id, landlordId } });
-  if (!isOwner) throw new Error('Unauthorized or Property not found');
+  // ৯২ এবং ৯৩ নম্বর লাইন (আপনার কোড)
+const isOwner = await prisma.property.findFirst({ where: { id, landlordId } });
+if (!isOwner) throw new Error('Unauthorized or Property not found');
 
-  return await prisma.property.update({
-    where: { id },
-    data: payload,
-  });
+// 🔍 ১. প্রথমে categoryName দিয়ে ক্যাটাগরি অবজেক্টটি খুঁজে বের করুন (Exact Match)
+const category = await prisma.category.findFirst({
+  where: {
+    name: {
+      equals: payload.categoryName, // "Villa"
+      mode: 'insensitive'
+    }
+  }
+});
+
+if (!category) {
+  throw new Error(`Category '${payload.categoryName}' not found!`);
+}
+
+// 🚀 ২. এখন প্রপার্টি আপডেট করুন
+return await prisma.property.update({
+  where: { id },
+  data: {
+    title: payload.title,
+    description: payload.description,
+    location: payload.location,
+    price: payload.price,
+    bedrooms: payload.bedrooms,
+    bathrooms: payload.bathrooms,
+    amenities: payload.amenities,
+    images: payload.images,
+    
+    categoryId: category.id 
+  },
+});
 };
 
 // ৫. প্রোপার্টি ডিলিট করা (Landlord)
@@ -85,16 +135,10 @@ const deleteProperty = async (id: string, landlordId: string): Promise<Property>
   return await prisma.property.delete({ where: { id } });
 };
 
-// ৬. সব ক্যাটাগরি দেখা (Public)
-const getAllCategories = async () => {
-  return await prisma.category.findMany();
-};
-
 export const PropertyService = {
   createProperty,
   getAllProperties,
   getPropertyById,
   updateProperty,
   deleteProperty,
-  getAllCategories,
 };
