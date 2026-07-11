@@ -109,7 +109,7 @@ model RentalRequest {
   propertyId    String
   property      Property @relation(fields: [propertyId], references: [id])
 
-  moveInDate    DateTime
+  moveInDate    DateTime @db.Date
 
   status        RentalStatus @default(PENDING)
 

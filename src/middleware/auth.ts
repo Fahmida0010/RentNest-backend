@@ -5,15 +5,20 @@ const auth =
   (...requiredRoles: string[]) =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
+      const bearerToken = req.headers.authorization;
 
-      if (!token) {
+      // ১. টোকেন আছে কিনা এবং সেটি Bearer দিয়ে শুরু হয়েছে কিনা চেক করা
+      if (!bearerToken || !bearerToken.startsWith("Bearer ")) {
         return res.status(401).json({
           success: false,
-          message: "Unauthorized Access.Token is missing",
+          message: "Unauthorized Access. Token is missing or malformed",
         });
       }
 
+      // ২. 'Bearer ' অংশটুকু বাদ দিয়ে শুধুমাত্র মূল টোকেনটা আলাদা করা
+      const token = bearerToken.split(" ")[1];
+
+      // ৩. এখন শুধু আসল টোকেনটি ভেরিফাই করা
       const decoded = jwt.verify(
         token,
         process.env.JWT_ACCESS_SECRET as string
@@ -27,7 +32,7 @@ const auth =
       ) {
         return res.status(403).json({
           success: false,
-          message: "Forbidden!You do not have permission to access this resource.",
+          message: "Forbidden! You do not have permission to access this resource.",
         });
       }
 
