@@ -1,7 +1,8 @@
-import { PrismaClient, PaymentProvider, PaymentStatus } from '@prisma/client';
 import SSLCommerzPayment from 'sslcommerz-lts';
+import prisma from '../../../prisma/prisma';
+import { PaymentProvider, PaymentStatus } from '@prisma/client';
 
-const prisma = new PrismaClient();
+
 
 const store_id = process.env.STORE_ID as string;
 const store_passwd = process.env.STORE_PASSWORD as string;

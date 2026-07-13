@@ -130,7 +130,7 @@ model Payment {
 
   amount           Float
 
-  transactionId    String?
+  transactionId    String  @unique
 
   provider         PaymentProvider
 
@@ -138,6 +138,7 @@ model Payment {
 
   paidAt           DateTime?
 }
+
 
 model Review {
 

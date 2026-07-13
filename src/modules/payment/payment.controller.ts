@@ -21,9 +21,9 @@ const confirmPayment = async (req: Request, res: Response) => {
 
     // ফ্রন্টএন্ডের সাকসেস বা ফেইল পেজে রিডাইরেক্ট করে দেওয়া (আপনার ফ্রন্টএন্ড URL অনুযায়ী চেঞ্জ করবেন)
     if (status === 'SUCCESS') {
-      res.redirect('http://localhost:3000/payment/success');
+      res.redirect('http://localhost:5000/payment/success');
     } else {
-      res.redirect('http://localhost:3000/payment/failed');
+      res.redirect('http://localhost:5000/payment/failed');
     }
   } catch (error: any) {
     res.status(400).json({ success: false, message: error.message });
