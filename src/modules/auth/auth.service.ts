@@ -2,15 +2,18 @@
 import { ILoginUser, IRegisterUser } from "./auth.interface";
 import { hashPassword, comparePassword } from "../../utils/bcrypt";
 import { generateToken } from "../../utils/jwt";
-import prisma from "../../../prisma/prisma";
 import { Role } from "@prisma/client";
+import prisma from "../../../prisma/prisma";
+
 
 const register = async (payload: IRegisterUser) => {
+
   const isUserExist = await prisma.user.findUnique({
     where: {
       email: payload.email,
     },
   });
+
 
   if (isUserExist) {
     throw new Error("User already exists");
@@ -65,6 +68,10 @@ const login = async (payload: ILoginUser) => {
   if (!matched) {
     throw new Error("Invalid email or password");
   }
+  
+  if (user.status === "BLOCKED") {
+  throw new Error("Your account has been blocked. Please contact admin.");
+}
 
   const accessToken = generateToken(
     {

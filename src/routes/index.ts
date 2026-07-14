@@ -5,6 +5,7 @@ import { CategoryRoutes } from "../modules/category/category.route";
 import { RentalRoutes } from "../modules/rental/rental.route";
 import { PaymentRoutes } from "../modules/payment/payment.route";
 import { AdminRoutes } from "../modules/admin/admin.route";
+import { ReviewRoutes } from "../modules/review/review.route";
 
 const router = Router();
 
@@ -18,6 +19,8 @@ router.use("/", RentalRoutes);
 
 router.use("/payments", PaymentRoutes);
 
-router.use("/api/admin", AdminRoutes);
+router.use("/admin", AdminRoutes);
+
+router.use("/reviews", ReviewRoutes);
 
 export default router;

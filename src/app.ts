@@ -3,7 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import router from "./routes";
-
+import globalError from "./middleware/globalError";
 dotenv.config();
 
 const app: Application = express();
@@ -24,5 +24,9 @@ app.get("/", (req: Request, res: Response) => {
     message: "🚀 RentNest API is running...",
   });
 });
+
+
+
+app.use(globalError);
 
 export default app;
