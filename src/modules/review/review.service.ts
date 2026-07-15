@@ -5,7 +5,7 @@ const createReviewIntoDB = async (
   tenantId: string,
   payload: ICreateReview
 ) => {
-  // 1. Property exists কিনা
+  //  Property exists or not
   const property = await prisma.property.findUnique({
     where: {
       id: payload.propertyId,
@@ -16,7 +16,7 @@ const createReviewIntoDB = async (
     throw new Error("Property not found!");
   }
 
-  // 2. Tenant-এর completed rental আছে কিনা
+
   const completedRental = await prisma.rentalRequest.findFirst({
     where: {
       tenantId,

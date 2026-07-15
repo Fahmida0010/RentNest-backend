@@ -7,12 +7,10 @@ import auth from '../../middleware/auth';
 const router = express.Router();
 
 
-// 1. Public Routes 
+//  Public Routes 
 router.get('/properties', PropertyController.getAllProperties);
 router.get('/properties/:id', PropertyController.getPropertyById);
 
-
-// 2. Landlord Protected Routes 
 
 // Create Property Listing
 router.post(
