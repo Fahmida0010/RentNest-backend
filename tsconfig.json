@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2022",                          
-    "module": "commonjs",                        
-    "rootDir": "./src",                          // এই লাইনটি নিশ্চিত করো বা যোগ করো
-    "outDir": "./dist",                          // এই লাইনটি নিশ্চিত করো বা যোগ করো
-    "esModuleInterop": true,                  
-    "forceConsistentCasingInFileNames": true,            
-    "strict": true,                              
-    "skipLibCheck": true                         
-  }
+    "target": "ES2022",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma",
+    "prisma.config.ts"
+  ]
 }
