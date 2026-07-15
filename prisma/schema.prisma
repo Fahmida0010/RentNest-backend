@@ -155,4 +155,5 @@ model Review {
   property    Property @relation(fields: [propertyId], references: [id])
 
   createdAt   DateTime @default(now())
+  @@unique([tenantId, propertyId])
 }
