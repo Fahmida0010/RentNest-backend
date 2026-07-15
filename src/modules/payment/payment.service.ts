@@ -6,7 +6,7 @@ import {
 } from "@prisma/client";
 
 const store_id = process.env.STORE_ID as string;
-const store_passwd = process.env.STORE_PASSWORD as string;
+const store_password = process.env.STORE_PASSWORD as string;
 const is_live = process.env.IS_LIVE === "true";
 
 const BACKEND_URL =
@@ -144,7 +144,7 @@ const createPaymentSession = async (
 
   const sslcz = new SSLCommerzPayment(
     store_id,
-    store_passwd,
+    store_password,
     is_live
   );
 
