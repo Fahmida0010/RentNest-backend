@@ -12,7 +12,7 @@ router.get("/success", PaymentController.paymentSuccess);
 router.get("/fail", PaymentController.paymentFail);
 router.get("/cancel", PaymentController.paymentCancel);
 
-// SSLCommerz Callbacks (এগুলোতে auth মিডলওয়্যার বসানো যাবে না, কারণ SSLCommerz সার্ভার সরাসরি হিট করবে)
+// SSLCommerz Callbacks 
 router.post('/confirm', PaymentController.confirmPayment);
 
 // Payment History & Details
