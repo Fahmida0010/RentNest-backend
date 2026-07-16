@@ -1,0 +1,1176 @@
+openapi: 3.0.0
+info:
+  title: RentNest API
+  description: |
+    RentNest is a RESTful backend API for a rental property marketplace.
+
+    User Roles:
+    - TENANT
+    - LANDLORD
+    - ADMIN
+
+    The API follows a consistent response format.
+
+    Success Response:
+    - success
+    - message
+    - meta (optional)
+    - data
+
+    Error Response:
+    - success
+    - message
+    - errorDetails
+  version: 1.0.0
+servers:
+- url: http://localhost:5000/api
+  description: Local Development Server
+tags:
+- name: Authentication
+- name: Properties
+- name: Categories
+- name: Landlord
+- name: Rentals
+- name: Payments
+- name: Reviews
+- name: Admin
+paths:
+  /auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: Register a new user
+      description: Register a TENANT or LANDLORD account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/auth_register_body"
+        required: true
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: User registered successfully
+                data:
+                  accessToken: jwt-access-token
+                  user:
+                    id: cm123user
+                    name: Fahmida Akter
+                    email: fahmida@example.com
+                    phone: "01712345678"
+                    role: TENANT
+                    status: ACTIVE
+                    createdAt: 2026-07-16T10:00:00.000Z
+                    updatedAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/ValidationError"
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Login user
+      description: Authenticate a registered user and return a JWT access token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/auth_login_body"
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              example:
+                success: true
+                message: Login successful
+                data:
+                  accessToken: jwt-access-token
+                  user:
+                    id: cm123user
+                    name: Fahmida Akter
+                    email: fahmida@example.com
+                    phone: "01712345678"
+                    role: TENANT
+                    status: ACTIVE
+        "400":
+          $ref: "#/components/responses/StandardError"
+  /auth/me:
+    get:
+      tags:
+      - Authentication
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: User retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: User retrieved successfully
+                data:
+                  id: cm123user
+                  name: Fahmida Akter
+                  email: fahmida@example.com
+                  phone: "01712345678"
+                  role: TENANT
+                  status: ACTIVE
+                  createdAt: 2026-07-16T10:00:00.000Z
+                  updatedAt: 2026-07-16T10:00:00.000Z
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+      security:
+      - bearerAuth: []
+  /properties:
+    get:
+      tags:
+      - Properties
+      summary: Get all rental properties
+      description: Retrieve rental properties with filtering and pagination.
+      parameters:
+      - name: location
+        in: query
+        required: false
+        schema:
+          type: string
+        example: Sylhet
+      - name: minPrice
+        in: query
+        required: false
+        schema:
+          type: number
+          format: float
+        example: 5000
+      - name: maxPrice
+        in: query
+        required: false
+        schema:
+          type: number
+          format: float
+        example: 20000
+      - name: categoryId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+        example: 10
+      responses:
+        "200":
+          description: Properties retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Properties retrieved successfully
+                meta:
+                  page: 1
+                  limit: 10
+                  total: 20
+                  totalPage: 2
+                data:
+                - id: cm123property
+                  title: Modern Apartment
+                  description: Beautiful apartment for rent
+                  location: Sylhet
+                  price: 15000
+                  bedrooms: 3
+                  bathrooms: 2
+                  amenities:
+                  - WiFi
+                  - Parking
+                  - Lift
+                  images:
+                  - https://example.com/property-1.jpg
+                  - https://example.com/property-2.jpg
+                  status: AVAILABLE
+                  landlordId: cm123landlord
+                  categoryId: cm123category
+                  createdAt: 2026-07-16T10:00:00.000Z
+                  updatedAt: 2026-07-16T10:00:00.000Z
+  /properties/{id}:
+    get:
+      tags:
+      - Properties
+      summary: Get property details
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      responses:
+        "200":
+          description: Property retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Property retrieved successfully
+                data:
+                  id: cm123property
+                  title: Modern Apartment
+                  description: Beautiful apartment for rent
+                  location: Sylhet
+                  price: 15000
+                  bedrooms: 3
+                  bathrooms: 2
+                  amenities:
+                  - WiFi
+                  - Parking
+                  - Lift
+                  images:
+                  - https://example.com/property-1.jpg
+                  status: AVAILABLE
+                  landlordId: cm123landlord
+                  categoryId: cm123category
+                  createdAt: 2026-07-16T10:00:00.000Z
+                  updatedAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+  /categories:
+    get:
+      tags:
+      - Categories
+      summary: Get all property categories
+      responses:
+        "200":
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Categories retrieved successfully
+                data:
+                - id: cm123category
+                  name: Apartment
+                  createdAt: 2026-07-16T10:00:00.000Z
+    post:
+      tags:
+      - Categories
+      summary: Create property category
+      description: ADMIN only endpoint.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/categories_body"
+        required: true
+      responses:
+        "201":
+          description: Category created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Category created successfully
+                data:
+                  id: cm123category
+                  name: Apartment
+                  createdAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/ValidationError"
+      security:
+      - bearerAuth: []
+  /categories/{id}:
+    get:
+      tags:
+      - Categories
+      summary: Get category by ID
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      responses:
+        "200":
+          description: Category retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Category retrieved successfully
+                data:
+                  id: cm123category
+                  name: Apartment
+                  createdAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+  /landlord/properties:
+    post:
+      tags:
+      - Landlord
+      summary: Create a property listing
+      description: LANDLORD only endpoint.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/landlord_properties_body"
+        required: true
+      responses:
+        "201":
+          description: Property created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Property created successfully
+                data:
+                  id: cm123property
+                  title: Modern Apartment
+                  description: Beautiful apartment available for rent
+                  location: Sylhet
+                  price: 15000
+                  bedrooms: 3
+                  bathrooms: 2
+                  amenities:
+                  - WiFi
+                  - Parking
+                  - Lift
+                  images:
+                  - https://example.com/property-1.jpg
+                  status: AVAILABLE
+                  landlordId: cm123landlord
+                  categoryId: cm123category
+                  createdAt: 2026-07-16T10:00:00.000Z
+                  updatedAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/ValidationError"
+      security:
+      - bearerAuth: []
+  /landlord/properties/{id}:
+    put:
+      tags:
+      - Landlord
+      summary: Update property listing
+      description: Update a property owned by the authenticated LANDLORD.
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/properties_id_body"
+        required: true
+      responses:
+        "200":
+          description: Property updated successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Property updated successfully
+                data:
+                  id: cm123property
+                  title: Updated Apartment
+                  price: 18000
+                  bedrooms: 4
+                  bathrooms: 3
+                  status: AVAILABLE
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+    delete:
+      tags:
+      - Landlord
+      summary: Delete property listing
+      description: Delete a property owned by the authenticated LANDLORD.
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      responses:
+        "200":
+          description: Property deleted successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Property deleted successfully
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /rentals:
+    get:
+      tags:
+      - Rentals
+      summary: Get tenant rental requests
+      description: Get rental requests of the authenticated TENANT.
+      responses:
+        "200":
+          description: Rental requests retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental requests retrieved successfully
+                data:
+                - id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: PENDING
+                  createdAt: 2026-07-16T10:00:00.000Z
+      security:
+      - bearerAuth: []
+    post:
+      tags:
+      - Rentals
+      summary: Submit a rental request
+      description: TENANT only endpoint.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/rentals_body"
+        required: true
+      responses:
+        "201":
+          description: Rental request submitted successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental request submitted successfully
+                data:
+                  id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: PENDING
+                  createdAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /rentals/{id}:
+    get:
+      tags:
+      - Rentals
+      summary: Get rental request details
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      responses:
+        "200":
+          description: Rental request retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental request retrieved successfully
+                data:
+                  id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: APPROVED
+                  createdAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /landlord/requests:
+    get:
+      tags:
+      - Landlord
+      summary: Get landlord rental requests
+      description: Get rental requests for properties owned by the authenticated LANDLORD.
+      responses:
+        "200":
+          description: Rental requests retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental requests retrieved successfully
+                data:
+                - id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: PENDING
+                  createdAt: 2026-07-16T10:00:00.000Z
+      security:
+      - bearerAuth: []
+  /landlord/requests/{id}:
+    patch:
+      tags:
+      - Landlord
+      summary: Approve or reject rental request
+      description: LANDLORD can update a PENDING rental request.
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requests_id_body"
+        required: true
+      responses:
+        "200":
+          description: Rental request status updated successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental request status updated successfully
+                data:
+                  id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: APPROVED
+                  createdAt: 2026-07-16T10:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /payments/create:
+    post:
+      tags:
+      - Payments
+      summary: Create SSLCommerz payment session
+      description: TENANT can create a payment session for an approved rental request.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/payments_create_body"
+        required: true
+      responses:
+        "200":
+          description: Payment session created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Payment session created successfully
+                data:
+                  paymentUrl: https://sandbox.sslcommerz.com/payment-url
+                  transactionId: RENTNEST-TRANSACTION-123
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /payments/success:
+    get:
+      tags:
+      - Payments
+      summary: SSLCommerz success callback
+      description: Handles successful SSLCommerz payment callback.
+      responses:
+        "200":
+          description: Payment success callback processed
+  /payments/fail:
+    get:
+      tags:
+      - Payments
+      summary: SSLCommerz failure callback
+      description: Handles failed SSLCommerz payment callback.
+      responses:
+        "200":
+          description: Payment failure callback processed
+  /payments/cancel:
+    get:
+      tags:
+      - Payments
+      summary: SSLCommerz cancellation callback
+      description: Handles cancelled SSLCommerz payment callback.
+      responses:
+        "200":
+          description: Payment cancellation callback processed
+  /payments/confirm:
+    post:
+      tags:
+      - Payments
+      summary: Confirm SSLCommerz payment
+      description: Confirm or verify an SSLCommerz payment.
+      responses:
+        "200":
+          description: Payment confirmed successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Payment confirmed successfully
+                data:
+                  id: cm123payment
+                  rentalRequestId: cm123rental
+                  amount: 15000
+                  transactionId: RENTNEST-TRANSACTION-123
+                  provider: SSLCOMMERZ
+                  status: SUCCESS
+                  paidAt: 2026-07-16T10:30:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+  /payments:
+    get:
+      tags:
+      - Payments
+      summary: Get payment history
+      responses:
+        "200":
+          description: Payment history retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Payment history retrieved successfully
+                data:
+                - id: cm123payment
+                  rentalRequestId: cm123rental
+                  amount: 15000
+                  transactionId: RENTNEST-TRANSACTION-123
+                  provider: SSLCOMMERZ
+                  status: SUCCESS
+                  paidAt: 2026-07-16T10:30:00.000Z
+      security:
+      - bearerAuth: []
+  /payments/{id}:
+    get:
+      tags:
+      - Payments
+      summary: Get payment details
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      responses:
+        "200":
+          description: Payment details retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Payment details retrieved successfully
+                data:
+                  id: cm123payment
+                  rentalRequestId: cm123rental
+                  amount: 15000
+                  transactionId: RENTNEST-TRANSACTION-123
+                  provider: SSLCOMMERZ
+                  status: SUCCESS
+                  paidAt: 2026-07-16T10:30:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /reviews:
+    post:
+      tags:
+      - Reviews
+      summary: Create a property review
+      description: |
+        TENANT can review a property after completing the rental.
+
+        A tenant can review the same property only once.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/reviews_body"
+        required: true
+      responses:
+        "201":
+          description: Review created successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Review created successfully
+                data:
+                  id: cm123review
+                  rating: 5
+                  comment: Excellent property and landlord.
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  createdAt: 2026-07-16T11:00:00.000Z
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /admin/users:
+    get:
+      tags:
+      - Admin
+      summary: Get all users
+      description: ADMIN only endpoint.
+      responses:
+        "200":
+          description: Users retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Users retrieved successfully
+                data:
+                - id: cm123user
+                  name: Fahmida Akter
+                  email: fahmida@example.com
+                  phone: "01712345678"
+                  role: TENANT
+                  status: ACTIVE
+                  createdAt: 2026-07-16T10:00:00.000Z
+                  updatedAt: 2026-07-16T10:00:00.000Z
+      security:
+      - bearerAuth: []
+  /admin/users/{id}:
+    patch:
+      tags:
+      - Admin
+      summary: Update user status
+      description: ADMIN can block or activate a user.
+      parameters:
+      - name: id
+        in: path
+        description: Resource unique identifier
+        required: true
+        schema:
+          type: string
+          example: cm123resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/users_id_body"
+        required: true
+      responses:
+        "200":
+          description: User status updated successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: User status updated successfully
+                data:
+                  id: cm123user
+                  name: Fahmida Akter
+                  email: fahmida@example.com
+                  role: TENANT
+                  status: BLOCKED
+        "400":
+          $ref: "#/components/responses/StandardError"
+      security:
+      - bearerAuth: []
+  /admin/properties:
+    get:
+      tags:
+      - Admin
+      summary: Get all properties
+      description: ADMIN only endpoint.
+      responses:
+        "200":
+          description: Properties retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Properties retrieved successfully
+                data:
+                - id: cm123property
+                  title: Modern Apartment
+                  description: Beautiful apartment for rent
+                  location: Sylhet
+                  price: 15000
+                  bedrooms: 3
+                  bathrooms: 2
+                  amenities:
+                  - WiFi
+                  - Parking
+                  images:
+                  - https://example.com/property.jpg
+                  status: AVAILABLE
+                  landlordId: cm123landlord
+                  categoryId: cm123category
+      security:
+      - bearerAuth: []
+  /admin/rentals:
+    get:
+      tags:
+      - Admin
+      summary: Get all rental requests
+      description: ADMIN only endpoint.
+      responses:
+        "200":
+          description: Rental requests retrieved successfully
+          content:
+            application/json:
+              example:
+                success: true
+                message: Rental requests retrieved successfully
+                data:
+                - id: cm123rental
+                  tenantId: cm123tenant
+                  propertyId: cm123property
+                  moveInDate: 2026-08-01T00:00:00.000Z
+                  status: COMPLETED
+                  createdAt: 2026-07-16T10:00:00.000Z
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Role:
+      type: string
+      example: TENANT
+      enum:
+      - TENANT
+      - LANDLORD
+      - ADMIN
+    UserStatus:
+      type: string
+      example: ACTIVE
+      enum:
+      - ACTIVE
+      - BLOCKED
+    PropertyStatus:
+      type: string
+      example: AVAILABLE
+      enum:
+      - AVAILABLE
+      - RENTED
+    RentalStatus:
+      type: string
+      example: PENDING
+      enum:
+      - PENDING
+      - APPROVED
+      - REJECTED
+      - ACTIVE
+      - COMPLETED
+    PaymentStatus:
+      type: string
+      example: PENDING
+      enum:
+      - PENDING
+      - SUCCESS
+      - FAILED
+    PaymentProvider:
+      type: string
+      example: SSLCOMMERZ
+      enum:
+      - SSLCOMMERZ
+    Meta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 20
+        totalPage:
+          type: integer
+          example: 2
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Operation completed successfully
+        meta:
+          $ref: "#/components/schemas/Meta"
+        data:
+          nullable: true
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Something went wrong
+        errorDetails:
+          nullable: true
+    auth_register_body:
+      required:
+      - email
+      - name
+      - password
+      - role
+      type: object
+      properties:
+        name:
+          type: string
+          example: Fahmida Akter
+        email:
+          type: string
+          format: email
+          example: fahmida@example.com
+        password:
+          type: string
+          example: "123456"
+        phone:
+          type: string
+          nullable: true
+          example: "01712345678"
+        role:
+          $ref: "#/components/schemas/Role"
+    auth_login_body:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: fahmida@example.com
+        password:
+          type: string
+          example: "123456"
+    categories_body:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          example: Apartment
+    landlord_properties_body:
+      required:
+      - amenities
+      - bathrooms
+      - bedrooms
+      - categoryId
+      - description
+      - images
+      - location
+      - price
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+          example: Modern Apartment
+        description:
+          type: string
+          example: Beautiful apartment available for rent
+        location:
+          type: string
+          example: Sylhet
+        price:
+          type: number
+          format: float
+          example: 15000
+        bedrooms:
+          type: integer
+          example: 3
+        bathrooms:
+          type: integer
+          example: 2
+        amenities:
+          type: array
+          example:
+          - WiFi
+          - Parking
+          - Lift
+          items:
+            type: string
+        images:
+          type: array
+          example:
+          - https://example.com/property-1.jpg
+          - https://example.com/property-2.jpg
+          items:
+            type: string
+        categoryId:
+          type: string
+          example: cm123category
+    properties_id_body:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Updated Apartment
+        description:
+          type: string
+          example: Updated property description
+        location:
+          type: string
+          example: Dhaka
+        price:
+          type: number
+          format: float
+          example: 18000
+        bedrooms:
+          type: integer
+          example: 4
+        bathrooms:
+          type: integer
+          example: 3
+        amenities:
+          type: array
+          example:
+          - WiFi
+          - Parking
+          items:
+            type: string
+        images:
+          type: array
+          example:
+          - https://example.com/updated-property.jpg
+          items:
+            type: string
+        status:
+          $ref: "#/components/schemas/PropertyStatus"
+        categoryId:
+          type: string
+          example: cm123category
+    rentals_body:
+      required:
+      - moveInDate
+      - propertyId
+      type: object
+      properties:
+        propertyId:
+          type: string
+          example: cm123property
+        moveInDate:
+          type: string
+          format: date
+          example: 2026-08-01
+    requests_id_body:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          type: string
+          example: APPROVED
+          enum:
+          - APPROVED
+          - REJECTED
+    payments_create_body:
+      required:
+      - rentalRequestId
+      type: object
+      properties:
+        rentalRequestId:
+          type: string
+          example: cm123rental
+    reviews_body:
+      required:
+      - comment
+      - propertyId
+      - rating
+      type: object
+      properties:
+        propertyId:
+          type: string
+          example: cm123property
+        rating:
+          maximum: 5
+          minimum: 1
+          type: integer
+          example: 5
+        comment:
+          type: string
+          example: Excellent property and landlord.
+    users_id_body:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/UserStatus"
+  responses:
+    StandardError:
+      description: Request failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            message: Something went wrong
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            message: Validation Error
+            errorDetails:
+            - path: email
+              message: Invalid email
+    UnauthorizedError:
+      description: Unauthorized access
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            message: Unauthorized Access
+            errorDetails: Token is missing or malformed
+  parameters:
+    IdParameter:
+      name: id
+      in: path
+      description: Resource unique identifier
+      required: true
+      schema:
+        type: string
+        example: cm123resource
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
