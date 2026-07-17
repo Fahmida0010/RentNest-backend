@@ -3,7 +3,7 @@ import { PropertyService } from './property.service';
 
 const createProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = (req as any).user; // Auth Middleware থেকে আসা ইউজার ডেটা
+    const user = (req as any).user; 
     const result = await PropertyService.createProperty(user.id, req.body);
     
     res.status(201).json({

@@ -2,7 +2,7 @@ import { ISubmitRentalInput } from './rental.interface';
 import prisma from '../../../prisma/prisma';
 
 
-// const prisma = new PrismaClient();
+
 
 export class RentalService {
   // Submit rental request

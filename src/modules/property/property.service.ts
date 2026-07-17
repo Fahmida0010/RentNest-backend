@@ -20,7 +20,7 @@ const createProperty = async (landlordId: string, payload: any): Promise<Propert
     throw new Error(`Category '${categoryName}' not found! Please ensure the category exists.`);
   }
 
-  // 📝 ক্যাটাগরি আইডিসহ প্রোপার্টি তৈরি করা
+  
   const result = await prisma.property.create({
     data: {
       ...propertyData,
@@ -33,7 +33,7 @@ const createProperty = async (landlordId: string, payload: any): Promise<Propert
   return result;
 };
 
-// ২. ফিল্টার ও সার্চসহ সব প্রোপার্টি দেখা (Public)
+
 const getAllProperties = async (filters: IPropertyFilterRequest): Promise<Property[]> => {
   const { searchTerm, location, categoryId, minPrice, maxPrice } = filters;
   const andConditions: any[] = [{ status: PropertyStatus.AVAILABLE }]; 
@@ -88,7 +88,7 @@ const getPropertyById = async (id: string): Promise<Property | null> => {
 
 
 
-// ৪. প্রোপার্টি আপডেট করা (Landlord)
+
 const updateProperty = async (id: string, landlordId: string, payload: Partial<Property>): Promise<Property> => {
   // চেক করা হচ্ছে প্রোপার্টিটি এই ল্যান্ডলর্ডের কিনা
   // ৯২ এবং ৯৩ নম্বর লাইন (আপনার কোড)
@@ -99,7 +99,7 @@ if (!isOwner) throw new Error('Unauthorized or Property not found');
 const category = await prisma.category.findFirst({
   where: {
     name: {
-      equals: payload.categoryName, // "Villa"
+      equals: payload.categoryName, 
       mode: 'insensitive'
     }
   }
@@ -109,7 +109,7 @@ if (!category) {
   throw new Error(`Category '${payload.categoryName}' not found!`);
 }
 
-// 🚀 ২. এখন প্রপার্টি আপডেট করুন
+
 return await prisma.property.update({
   where: { id },
   data: {
@@ -127,7 +127,7 @@ return await prisma.property.update({
 });
 };
 
-// ৫. প্রোপার্টি ডিলিট করা (Landlord)
+
 const deleteProperty = async (id: string, landlordId: string): Promise<Property> => {
   const isOwner = await prisma.property.findFirst({ where: { id, landlordId } });
   if (!isOwner) throw new Error('Unauthorized or Property not found');
