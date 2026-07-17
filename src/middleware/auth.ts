@@ -7,7 +7,7 @@ const auth =
     try {
       const bearerToken = req.headers.authorization;
 
-      // ১. টোকেন আছে কিনা এবং সেটি Bearer দিয়ে শুরু হয়েছে কিনা চেক করা
+
       if (!bearerToken || !bearerToken.startsWith("Bearer ")) {
         return res.status(401).json({
           success: false,
@@ -15,10 +15,8 @@ const auth =
         });
       }
 
-      // ২. 'Bearer ' অংশটুকু বাদ দিয়ে শুধুমাত্র মূল টোকেনটা আলাদা করা
+      
       const token = bearerToken.split(" ")[1];
-
-      // ৩. এখন শুধু আসল টোকেনটি ভেরিফাই করা
       const decoded = jwt.verify(
         token,
         process.env.JWT_ACCESS_SECRET as string

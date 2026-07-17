@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AdminServices } from "./admin.service";
 
 
-// ১. সব ইউজারদের লিস্ট আনা
+
 const getAllUsers = async (req: Request, res: Response) => {
   try {
     const result = await AdminServices.getAllUsersFromDB();
@@ -19,11 +19,11 @@ const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-// ২. ইউজারের স্ট্যাটাস পরিবর্তন করা
+
 const updateUserStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = req.body; // 'ACTIVE' বা 'BLOCKED'
+    const { status } = req.body; 
 
     const result = await AdminServices.updateUserStatusInDB(id, status);
     res.status(200).json({
@@ -39,7 +39,6 @@ const updateUserStatus = async (req: Request, res: Response) => {
   }
 };
 
-// ৩. সব প্রপার্টি লিস্টিং আনা
 const getAllProperties = async (req: Request, res: Response) => {
   try {
     const result = await AdminServices.getAllPropertiesFromDB();
@@ -56,7 +55,7 @@ const getAllProperties = async (req: Request, res: Response) => {
   }
 };
 
-// ৪. সব রেন্টাল রিকোয়েস্ট আনা
+
 const getAllRentalRequests = async (req: Request, res: Response) => {
   try {
     const result = await AdminServices.getAllRentalRequestsFromDB();
