@@ -21,6 +21,7 @@ The system supports three user roles:
 Each role has specific permissions and protected API access through JWT-based authentication and role-based authorization.
 
 ---
+API Doc : https://fahmida-akter-s-team.docs.buildwithfern.com/rent-nest-api-documentation/introduction
 
 ## ✨ Key Features
 
